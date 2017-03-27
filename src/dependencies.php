@@ -11,8 +11,8 @@ $container['renderer'] = function ($c) {
 
 // Register twig on container
 $container['view'] = function ($container) {
-    $view = new \Slim\Views\Twig('path/to/templates', [
-        'cache' => 'path/to/cache'
+    $view = new \Slim\Views\Twig('../templates', [
+        'cache' => false
     ]);
     
     // Instantiate and add Slim specific extension
