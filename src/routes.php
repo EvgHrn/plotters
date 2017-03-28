@@ -1,5 +1,7 @@
 <?php
 
+require_once 'parser.php';
+
 $app->get('/', function ($request, $response, $args) {
 
     // Sample log message
@@ -21,5 +23,5 @@ $app->get('/getdata', function ($request, $response, $args) {
     
     $data = Parser::getData($from, $to);
 
-    return $this->view->render($response, 'index.twig', $params);
+    return $this->view->render($response, 'index.twig', $data);
 });

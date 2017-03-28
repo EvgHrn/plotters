@@ -1,6 +1,6 @@
 
     <!--Load the AJAX API-->
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
     <script type="text/javascript">
 
       // Load the Visualization API and the corechart package.
@@ -15,21 +15,13 @@
       function drawChart() {
 
         // Create the data table.
+        var jsonData = $.ajax({
+                    url: "getData.php",
+                    dataType: "json",
+                    async: false
+                  }).responseText;
 
-  var data = new google.visualization.DataTable();
-  data.addColumn('datetime', 'Date');
-  data.addColumn('number', 'Plotter1');
-  data.addColumn('number', 'Plotter2');
-  data.addColumn('number', 'Plotter3');
-  data.addColumn('number', 'Plotter4');
-  data.addColumn('number', 'Plotter5');
-  data.addRows([
-    [new Date(2010, 10,  15, 18, 11, 11), 3, 2, 3, 4, 5],
-    [new Date(2011, 10,  15, 18, 11, 11), 3, 0, 3, 4, 5],
-    [new Date(2012, 10,  15, 18, 11, 11), 2, 2, 3, 4, 10],
-    [new Date(2013, 10,  15, 18, 11, 11), 3, 8, 3, 4, 5],
-    [new Date(2014, 10,  15, 18, 11, 11), 3, 2, 3, 4, 0]
-  ]);
+  var data = new google.visualization.DataTable(jsonData);
 
         // Set chart options
         var options = {
