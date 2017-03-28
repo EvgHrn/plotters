@@ -11,6 +11,7 @@ $container['renderer'] = function ($c) {
 
 // Register twig on container
 $container['view'] = function ($container) {
+    
     $view = new \Slim\Views\Twig('../templates', [
         'cache' => false
     ]);
