@@ -1,6 +1,5 @@
 <?php
 
-require_once 'parser.php';
 require_once 'db.php';
 
 $app->get('/', function ($request, $response, $args) {
@@ -19,10 +18,10 @@ $app->get('/getdata', function ($request, $response, $args) {
 
     $params = $request->getQueryParams();
 
-    $from = $params['dateTimeFrom'];
-    $to = $params['dateTimeTo'];
-    
-    $data = Parser::getData($from, $to);
+    $from = $params['start_datetime'];
+    $to = $params['stop_datetime'];
+
+    $data = Db::getData($from, $to);
 
     return $this->view->render($response, 'index.twig', $data);
 });
