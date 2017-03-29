@@ -28,6 +28,8 @@ $app->get('/getdata', function ($request, $response, $args) {
 
 $app->post('/postdata', function ($request, $response, $args) {
 
+    
+
     var_dump($request->getQueryParams());
     die();
     // // Sample log message
