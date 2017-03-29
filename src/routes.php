@@ -25,3 +25,20 @@ $app->get('/getdata', function ($request, $response, $args) {
 
     return $this->view->render($response, 'index.twig', $data);
 });
+
+$app->post('/postdata', function ($request, $response, $args) {
+
+    var_dump($request->getQueryParams());
+    die();
+    // // Sample log message
+    // $this->logger->info("Slim-Skeleton '/' route");
+
+    // $params = $request->getQueryParams();
+
+    // $from = $params['dateTimeFrom'];
+    // $to = $params['dateTimeTo'];
+    
+    // $data = Parser::getData($from, $to);
+
+    // return $this->view->render($response, 'index.twig', $data);
+});
