@@ -23,7 +23,7 @@ $app->get('/getdata', function ($request, $response, $args) {
 
     $data = Db::getData($from, $to);
 
-    return $this->view->render($response, 'index.twig', $data);
+    return $this->view->render($response, 'index.twig');
 });
 
 $app->get('/postdata', function ($request, $response, $args) {

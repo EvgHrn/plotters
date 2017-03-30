@@ -34,22 +34,26 @@ class Db
         $from = str_replace("T", " ", $from).":00";
         $to = str_replace("T", " ", $to).":00";
 
-        // var_dump($from, $to);
-        // die();
-
         $pdo = static::getPDO();
 
-        $selectStatement = $pdo->select()
-                           ->from('printsessions')
-                           ->where('start_datetime', '>=', $from)
-                           ->where('start_datetime', '<=', $to);
+        $stmt = $pdo->prepare('SELECT plotter, meters FROM printsessions WHERE start_datetime 
+                                BETWEEN STR_TO_DATE(:ff, "%Y-%m-%d %H:%i:%s") 
+                                AND STR_TO_DATE(:tt, "%Y-%m-%d %H:%i:%s");');
 
-        $stmt = $selectStatement->execute();
-        $data = $stmt->fetch();
+        $stmt->execute(['ff' => $from, 'tt' => $to]);
+        $rawData = $stmt->fetchAll(PDO::FETCH_GROUP );
 
-        var_dump($stmt);
-        die();
-        
-        return $result;
+        $data = array_reduce(array_keys($rawData), function ($acc, $plotter) use ($rawData) {
+
+            $plotterData = $rawData[$plotter];
+            $sum = array_reduce($plotterData, function ($acc, $item){
+                return $acc += $item['meters'];
+            }, 0);
+            $acc[$plotter] = $sum;
+            return $acc;
+
+        }, [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
+
+        return $data;
     }
 }

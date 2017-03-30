@@ -18,7 +18,7 @@ return [
 
         'db' => [
             'user' => 'root',
-            'pw' => 'kasper',
+            'pw' => '',
             'name' => 'plotters',
             'host' => 'localhost',
         ],
