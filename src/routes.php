@@ -23,6 +23,9 @@ $app->get('/getdata', function ($request, $response, $args) {
 
     $data = Db::getData($from, $to);
 
+    var_dump($data);
+    die();
+
     return $this->view->render($response, 'index.twig');
 });
 
