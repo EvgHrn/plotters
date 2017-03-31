@@ -1,6 +1,6 @@
 <?php
 
-require_once 'db.php';
+require_once 'Db.php';
 require_once 'DatesWorker.php';
 
 $app->get('/', function ($request, $response, $args) {

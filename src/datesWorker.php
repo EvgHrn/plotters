@@ -12,19 +12,19 @@ class DatesWorker
         $result;
         switch ($period) {
             case 'day':
-                $result = parcelDays($from, $to);
+                $result = static::parcelDays($from, $to);
                 break;
             
             case 'week':
-                $result = parcelWeeks($from, $to);
+                $result = static::parcelWeeks($from, $to);
                 break;
 
             case 'month':
-                $result = parcelMonths($from, $to);
+                $result = static::parcelMonths($from, $to);
                 break;
 
             case 'year':
-                $result = parcelYears($from, $to);
+                $result = static::parcelYears($from, $to);
                 break;
 
             default:
@@ -36,7 +36,8 @@ class DatesWorker
 
     // return [ [start, end], [start, end], [start, end], ]
     // format: "2010-10-22 00:00:00"
-    private static function parcelDays($from, $to)
+    // receive format: 'Y-m-d H:i'
+    private static function parcelDays(string $from, string $to)
     {
         $periods = [];
 
