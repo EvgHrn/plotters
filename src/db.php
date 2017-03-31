@@ -2,7 +2,6 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-
 class Db
 {
     private function getPDO()
@@ -28,32 +27,50 @@ class Db
         $insertId = $insertStatement->execute(false);
     }
 
-    static public function getData($from, $to)
+    static public function getData($from, $to, $period)
     {
 
         $from = str_replace("T", " ", $from).":00";
         $to = str_replace("T", " ", $to).":00";
+
+        $periods = DatesWorker::parcel($from, $to, $period);
 
         $pdo = static::getPDO();
 
         $stmt = $pdo->prepare('SELECT plotter, meters FROM printsessions WHERE start_datetime 
                                 BETWEEN STR_TO_DATE(:ff, "%Y-%m-%d %H:%i:%s") 
                                 AND STR_TO_DATE(:tt, "%Y-%m-%d %H:%i:%s");');
+        
+        $periodsData = array_map(function($item){
+            $start = $item[0];
+            $end = $item[1];
+            $stmt->execute(['ff' => $start, 'tt' => $end]);
+            $rawData = $stmt->fetchAll(PDO::FETCH_GROUP );
+            $metersOfPeriodByPlotter = array_reduce(array_keys($rawData), function ($acc, $plotter) use ($rawData) {
+                $plotterData = $rawData[$plotter];
+                $sum = array_reduce($plotterData, function ($acc, $item){
+                    return $acc += $item['meters'];
+                }, 0);
+                $acc[$plotter] = $sum;
+                return $acc;
+            }, [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
+            $metersOfPeriod = array_sum(array_values($metersOfPeriodByPlotter));
+            $day = explode(" ", $start)[0];
+            return [$day, $metersOfPeriod];
+        }, $periods);
+        
+        // $data = array_reduce(array_keys($rawData), function ($acc, $plotter) use ($rawData) {
 
-        $stmt->execute(['ff' => $from, 'tt' => $to]);
-        $rawData = $stmt->fetchAll(PDO::FETCH_GROUP );
+        //     $plotterData = $rawData[$plotter];
+        //     $sum = array_reduce($plotterData, function ($acc, $item){
+        //         return $acc += $item['meters'];
+        //     }, 0);
+        //     $acc[$plotter] = $sum;
+        //     return $acc;
 
-        $data = array_reduce(array_keys($rawData), function ($acc, $plotter) use ($rawData) {
-
-            $plotterData = $rawData[$plotter];
-            $sum = array_reduce($plotterData, function ($acc, $item){
-                return $acc += $item['meters'];
-            }, 0);
-            $acc[$plotter] = $sum;
-            return $acc;
-
-        }, [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
-
-        return $data;
+        // }, [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
+        
+        // return [ [day, meters], [day, meters], [day, meters],  ]
+        return $periodsData;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-function chartAdapt($array)
+function ChartAdapt($array)
 {
     //array(5) { [1]=> int(1) [2]=> int(1) [3]=> int(1) [4]=> int(0) [5]=> int(3) }
 

@@ -7,27 +7,25 @@ use Carbon\Carbon;
 class DatesWorker
 {
 
-    public static function parcel()
+    public static function parcel($from, $to, $period)
     {
-
+        
 
 
     }
 
-    public static function parcelDays()
+
+    // return [ [start, end], [start, end], [start, end], ]
+    // format: "2010-10-22 00:00:00"
+    public static function parcelDays($from, $to)
     {
-        //
         $periods = [];
 
         $from = '2010-10-21 10:15';
-        $to = '2011-01-12 23:15';
+        $to = '2011-02-30 23:15';
 
         $from = Carbon::createFromFormat('Y-m-d H:i', $from);
         $to = Carbon::createFromFormat('Y-m-d H:i', $to);
-
-        var_dump($from);
-        var_dump($to);
-
 
         // If choose just one day
         if ($from->toDateString() == $to->toDateString())
@@ -35,27 +33,27 @@ class DatesWorker
             return [[$from->toDateTimeString(), $to->toDateTimeString()]];
         }
 
-
         // Add first day period
         $periods[] = [$from->toDateTimeString(), $from->endOfDay()->toDateTimeString()];
 
-        $iter = function ($acc, $startOfSomeDay) use (&$iter, &$finishOfPeriod)
-        {
+        $startOfNextDay = function ($someDay) {
+            return $someDay->addDay()->startOfDay();
+        };
+
+        $iter = function ($acc, $startOfSomeDay) use (&$iter, &$to, &$startOfNextDay) {
             // If we are in last day
-            if ( $startOfSomeDay->toDateString() == $finishOfPeriod->toDateString())
+            if ( $startOfSomeDay->toDateString() == $to->toDateString())
             {
-                $acc[] = [$startOfSomeDay->toDateTimeString(), $finishOfPeriod->toDateTimeString()];
+                $acc[] = [$startOfSomeDay->toDateTimeString(), $to->toDateTimeString()];
                 return $acc;
             }
 
             $acc[] = [$startOfSomeDay->toDateTimeString(), $startOfSomeDay->endOfDay()->toDateTimeString()];
 
-            return $iter($acc, $startOfSomeDay->addDay());
+            return $iter($acc, $startOfNextDay($startOfSomeDay));
         };
 
-        var_dump($iter($periods, $from->addDay()->startOfDay()));
+        return $iter($periods, $startOfNextDay($from));
 
-        return $periods;
-    
     }
 }

@@ -21,8 +21,9 @@ $app->get('/getdata', function ($request, $response, $args) {
 
     $from = $params['start_datetime'];
     $to = $params['stop_datetime'];
+    $period = $params['period'];
 
-    $data = Db::getData($from, $to);
+    $data = Db::getData($from, $to, $period);
 
     var_dump($data);
     die();
