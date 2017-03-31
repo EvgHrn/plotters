@@ -59,17 +59,6 @@ class Db
             return [$day, $metersOfPeriod];
         }, $periods);
         
-        // $data = array_reduce(array_keys($rawData), function ($acc, $plotter) use ($rawData) {
-
-        //     $plotterData = $rawData[$plotter];
-        //     $sum = array_reduce($plotterData, function ($acc, $item){
-        //         return $acc += $item['meters'];
-        //     }, 0);
-        //     $acc[$plotter] = $sum;
-        //     return $acc;
-
-        // }, [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
-        
         // return [ [day, meters], [day, meters], [day, meters],  ]
         return $periodsData;
     }
