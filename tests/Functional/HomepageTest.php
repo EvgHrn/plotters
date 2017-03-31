@@ -17,8 +17,24 @@ class DatesWorkerTest extends \PHPUnit_Framework_TestCase
             ['2017-01-02 00:00:00', '2017-01-02 23:59:59'],
             ['2017-01-03 00:00:00', '2017-01-03 22:22:00']
         ]);
-        // $this->assertContains('SlimFramework', (string)$response->getBody());
-        // $this->assertNotContains('Hello', (string)$response->getBody());
+        $result = DatesWorker::parcel('2017-01-01 15:15', '2017-01-01 22:22', 'day');
+        $this->assertEquals($result, [
+            ['2017-01-01 15:15:00', '2017-01-01 22:22:00']
+        ]);
+    }
+
+    public function testParcelWeeks()
+    {
+        // $result = DatesWorker::parcel('2017-01-01 15:15', '2017-01-10 22:22', 'week');
+        // $this->assertEquals($result, [
+        //     ['2017-01-01 15:15:00', '2017-01-01 23:59:59'],
+        //     ['2017-01-02 00:00:00', '2017-01-08 23:59:59'],
+        //     ['2017-01-09 00:00:00', '2017-01-10 22:22:00']
+        // ]);
+        $result = DatesWorker::parcel('2017-01-01 15:15', '2017-01-01 22:22', 'week');
+        $this->assertEquals($result, [
+            ['2017-01-01 15:15:00', '2017-01-01 22:22:00']
+        ]);
     }
 
     /**
