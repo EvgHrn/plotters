@@ -9,8 +9,13 @@ use Carbon\Carbon;
 
 class DatesWorker
 {
-
-    public static function parcel($from, $to, $period)
+    /**
+    *@param string $from with fromat 'Y-m-d H:i'
+    *@param string $to with fromat 'Y-m-d H:i'
+    *@param string $period : 'day', 'week', 'month' or 'year'
+    *@return array with format [ [start, end], [start, end], [start, end], ]. Each 'start' and 'end' has format: "2010-10-22 00:00:00"
+    */
+    public static function parcel(string $from, string $to, $period)
     {
         $result;
         switch ($period) {
@@ -36,10 +41,11 @@ class DatesWorker
         return $result;
     }
 
-
-    // return [ [start, end], [start, end], [start, end], ]
-    // format: "2010-10-22 00:00:00"
-    // receive format: 'Y-m-d H:i'
+    /**
+    *@param string $from with fromat 'Y-m-d H:i'
+    *@param string $to with fromat 'Y-m-d H:i'
+    *@return array with format [ [start, end], [start, end], [start, end], ]. Each 'start' and 'end' has format: "2010-10-22 00:00:00"
+    */
     private static function parcelDays(string $from, string $to)
     {
         $periods = [];
@@ -82,8 +88,11 @@ class DatesWorker
         return $iter($periods, $startOfNextDay($from));
     }
 
-    // return [ [start, end], [start, end], [start, end], ]
-    // format: "2010-10-22 00:00:00"
+    /**
+    *@param string $from with fromat 'Y-m-d H:i'
+    *@param string $to with fromat 'Y-m-d H:i'
+    *@return array with format [ [start, end], [start, end], [start, end], ]. Each 'start' and 'end' has format: "2010-10-22 00:00:00"
+    */
     private static function parcelWeeks(string $from, string $to)
     {
         $periods = [];
@@ -133,8 +142,11 @@ class DatesWorker
         return $iter($periods, $startOfNextWeek($from));
     }
 
-    // return [ [start, end], [start, end], [start, end], ]
-    // format: "2010-10-22 00:00:00"
+    /**
+    *@param string $from with fromat 'Y-m-d H:i'
+    *@param string $to with fromat 'Y-m-d H:i'
+    *@return array with format [ [start, end], [start, end], [start, end], ]. Each 'start' and 'end' has format: "2010-10-22 00:00:00"
+    */
     private static function parcelMonths(string $from, string $to)
     {
         $periods = [];
@@ -184,6 +196,11 @@ class DatesWorker
         return $iter($periods, $startOfNextMonth($from));
     }
 
+    /**
+    *@param string $from with fromat 'Y-m-d H:i'
+    *@param string $to with fromat 'Y-m-d H:i'
+    *@return array with format [ [start, end], [start, end], [start, end], ]. Each 'start' and 'end' has format: "2010-10-22 00:00:00"
+    */
     private static function parcelYears(string $from, string $to)
     {
         $periods = [];
