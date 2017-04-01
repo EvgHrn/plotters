@@ -2,6 +2,7 @@
 
 require_once 'Db.php';
 require_once 'DatesWorker.php';
+require_once 'DataChartAdapter.php';
 
 $app->get('/', function ($request, $response, $args) {
 
@@ -24,6 +25,8 @@ $app->get('/getdata', function ($request, $response, $args) {
     $period = $params['period'];
 
     $data = Db::getData($from, $to, $period);
+
+    DataChartAdapter::adaptForChart($data);
 
     return $this->view->render($response, 'index.twig');
 });
