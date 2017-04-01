@@ -49,11 +49,7 @@ class Db
      *                            ]
     */
     static public function getData($from, $to, $period)
-    {
-        
-        $from = str_replace("T", " ", $from).":00";
-        $to = str_replace("T", " ", $to).":00";
-        
+    {       
         $periods = DatesWorker::parcel($from, $to, $period);
         
         $pdo = static::getPDO();

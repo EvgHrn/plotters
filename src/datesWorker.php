@@ -15,9 +15,8 @@ class DatesWorker
     *@param string $period - 'day', 'week', 'month' or 'year'
     *@return array with format [ [start, end], [start, end], [start, end], ]. Each 'start' and 'end' has format: "2010-10-22 00:00:00"
     */
-    public static function parcel(string $from, string $to, $period)
+    public static function parcel(string $from, string $to, string $period)
     {
-        $result;
         switch ($period) {
             case 'day':
                 $result = static::parcelDays($from, $to);
@@ -50,6 +49,7 @@ class DatesWorker
     {
         $periods = [];
 
+ 
         $from = Carbon::createFromFormat('Y-m-d H:i:s', $start);
         $to = Carbon::createFromFormat('Y-m-d H:i:s', $end);
 
