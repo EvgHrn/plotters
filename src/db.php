@@ -4,6 +4,9 @@ require __DIR__ . '/../vendor/autoload.php';
 
 class Db
 {
+    /**
+    *@return \Slim\PDO\Database
+    */
     private function getPDO()
     {
         $settings = require __DIR__ . '/../src/settings.php';
@@ -11,34 +14,52 @@ class Db
         $dsn = "mysql:host={$dbSettings['host']};dbname={$dbSettings['name']};charset=utf8";
         $usr = $dbSettings['user'];
         $pwd = $dbSettings['pw'];
-
+        
         return new \Slim\PDO\Database($dsn, $usr, $pwd);
     }
-
+    
+    /**
+    *Save data to database.
+    *Fields: 'session_id', 'plotter', 'start_datetime', 'stop_datetime', 'passes', 'meters'
+    *
+    *@param array $data
+    *@return \Slim\PDO\Database
+    */
     static public function saveData($data)
     {
         $pdo = static::getPDO();
-        $insertStatement = $pdo->insert(array('session_id', 'plotter', 'start_datetime', 
-                                                'stop_datetime', 'passes', 'meters'))
-                            ->into('printsessions')
-                            ->values(array($data['session_id'], $data['plotter'], $data['start_datetime'], 
-                                                $data['stop_datetime'], $data['passes'], $data['meters']));
-
+        $insertStatement = $pdo->insert(array('session_id', 'plotter', 'start_datetime',
+        'stop_datetime', 'passes', 'meters'))
+        ->into('printsessions')
+        ->values(array($data['session_id'], $data['plotter'], $data['start_datetime'],
+        $data['stop_datetime'], $data['passes'], $data['meters']));
+        
         $insertId = $insertStatement->execute(false);
     }
-
+    
+    /**
+    *Get data from database.
+    *
+    *@param string $from - with format 'Y-m-d H:i'
+    *@param string $to - with format 'Y-m-d H:i'
+    *@param string $period - 'day', 'week', 'month' or 'year'
+    *@return array - with format [ ['start_of_period' => date, 1 => meters, 2 => meters, 3 => meters, 4 => meters, 5 => meters], 
+     *                              ['start_of_period' => date, 1 => meters, 2 => meters, 3 => meters, 4 => meters, 5 => meters], 
+     *                               ...
+     *                            ]
+    */
     static public function getData($from, $to, $period)
     {
-
+        
         $from = str_replace("T", " ", $from).":00";
         $to = str_replace("T", " ", $to).":00";
-
+        
         $periods = DatesWorker::parcel($from, $to, $period);
-
+        
         $pdo = static::getPDO();
-
-        $stmt = $pdo->prepare('SELECT plotter, meters FROM printsessions WHERE start_datetime 
-                                BETWEEN STR_TO_DATE(:ff, "%Y-%m-%d %H:%i:%s") 
+        
+        $stmt = $pdo->prepare('SELECT plotter, meters FROM printsessions WHERE start_datetime
+                                BETWEEN STR_TO_DATE(:ff, "%Y-%m-%d %H:%i:%s")
                                 AND STR_TO_DATE(:tt, "%Y-%m-%d %H:%i:%s");');
         
         $periodsData = array_map(function($item){
@@ -46,20 +67,22 @@ class Db
             $end = $item[1];
             $stmt->execute(['ff' => $start, 'tt' => $end]);
             $rawData = $stmt->fetchAll(PDO::FETCH_GROUP );
-            $metersOfPeriodByPlotter = array_reduce(array_keys($rawData), function ($acc, $plotter) use ($rawData) {
+
+            return array_reduce(array_keys($rawData), function ($acc, $plotter) use ($rawData) {
                 $plotterData = $rawData[$plotter];
                 $sum = array_reduce($plotterData, function ($acc, $item){
                     return $acc += $item['meters'];
                 }, 0);
                 $acc[$plotter] = $sum;
                 return $acc;
-            }, [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
-            $metersOfPeriod = array_sum(array_values($metersOfPeriodByPlotter));
-            $day = explode(" ", $start)[0];
-            return [$day, $metersOfPeriod];
+            }, ['start_of_period' => $start, 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
+
         }, $periods);
         
-        // return [ [day, meters], [day, meters], [day, meters],  ]
+        // return [ ['start_of_period' => date, 1 => meters, 2 => meters, 3 => meters, 4 => meters, 5 => meters], 
+        //          ['start_of_period' => date, 1 => meters, 2 => meters, 3 => meters, 4 => meters, 5 => meters], 
+        //          ...
+        //         ]
         return $periodsData;
     }
 }

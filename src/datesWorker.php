@@ -12,7 +12,7 @@ class DatesWorker
     /**
     *@param string $from with fromat 'Y-m-d H:i'
     *@param string $to with fromat 'Y-m-d H:i'
-    *@param string $period : 'day', 'week', 'month' or 'year'
+    *@param string $period - 'day', 'week', 'month' or 'year'
     *@return array with format [ [start, end], [start, end], [start, end], ]. Each 'start' and 'end' has format: "2010-10-22 00:00:00"
     */
     public static function parcel(string $from, string $to, $period)
