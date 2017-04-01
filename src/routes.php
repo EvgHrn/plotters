@@ -11,20 +11,27 @@ $app->get('/', function ($request, $response, $args) {
     // $this->logger->info("Slim-Skeleton '/' route");
     $params = [];
 
-    if ($response->hasHeader('start')) {
-        $params['start'] = $response->getHeader('start');
+    ob_start();
+    var_dump($_COOKIE);
+    $content = ob_get_contents();
+    ob_end_clean();
+    $this->logger->info("Slim '/' route cookies: " . $content);
+
+    $cookies = $_COOKIE;
+    if (array_key_exists('start', $cookies)) {
+        $params['start'] = $cookies['start'];
     } else {
         $params['start'] = Carbon::now()->startOfWeek()->format('Y-m-d\TH:i:s');
     }
 
-    if ($response->hasHeader('stop')) {
-        $params['stop'] = $response->getHeader('stop');
+    if (array_key_exists('stop', $cookies)) {
+        $params['stop'] = $cookies['stop'];
     } else {
         $params['stop'] = Carbon::now()->endOfWeek()->format('Y-m-d\TH:i:s');
     }
 
-    if ($response->hasHeader('period')) {
-        $params['period'] = $response->getHeader('period');
+    if (array_key_exists('period', $cookies)) {
+        $params['period'] = $cookies['period'];
     } else {
         $params['period'] = '0';
     }
@@ -35,10 +42,10 @@ $app->get('/', function ($request, $response, $args) {
 
 $app->get('/getdata', function ($request, $response, $args) {
 
-    // Sample log message
-    $this->logger->info("Slim-Skeleton '/' route");
-
     $params = $request->getQueryParams();
+
+    setcookie("start", $params['start_datetime'], 0);
+    setcookie("stop", $params['stop_datetime'], 0);
 
     $from = new Carbon($params['start_datetime']);
     $from = $from->format('Y-m-d H:i:s');
@@ -59,13 +66,10 @@ $app->get('/getdata', function ($request, $response, $args) {
 
     DataChartAdapter::adaptForChart($data);
 
-    return $response->withStatus(302)
-                    ->withAddedHeader('start', $from)
-                    ->withAddedHeader('stop', $to)
-                    ->withAddedHeader('period', $periodId)
-                    ->withHeader('Location', '/');
+    setcookie("period", $periodId, 0);
 
-    //return $this->view->render($response, 'index.twig');
+    return $response->withStatus(302)
+                    ->withHeader('Location', '/');
 });
 
 $app->get('/postdata', function ($request, $response, $args) {
