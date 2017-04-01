@@ -1,6 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 require __DIR__ . '/../vendor/autoload.php';
+
 
 use Carbon\Carbon;
 
@@ -53,11 +56,17 @@ class DatesWorker
         // Add first day period
         $periods[] = [$from->toDateTimeString(), $from->endOfDay()->toDateTimeString()];
 
-        $startOfNextDay = function ($someDay) {
-            return $someDay->addDay()->startOfDay();
+        $endOfDay = function (Carbon $someDay) {
+            $date = new Carbon($someDay);
+            return $date->endOfDay();
         };
 
-        $iter = function ($acc, $startOfSomeDay) use (&$iter, &$to, &$startOfNextDay) {
+        $startOfNextDay = function (Carbon $someDay) {
+            $date = new Carbon($someDay);
+            return $date->addDay()->startOfDay();
+        };
+
+        $iter = function ($acc, $startOfSomeDay) use (&$iter, &$to, &$startOfNextDay, &$endOfDay) {
             // If we are in last day
             if ( $startOfSomeDay->toDateString() == $to->toDateString())
             {
@@ -65,7 +74,7 @@ class DatesWorker
                 return $acc;
             }
 
-            $acc[] = [$startOfSomeDay->toDateTimeString(), $startOfSomeDay->endOfDay()->toDateTimeString()];
+            $acc[] = [$startOfSomeDay->toDateTimeString(), $endOfDay($startOfSomeDay)->toDateTimeString()];
 
             return $iter($acc, $startOfNextDay($startOfSomeDay));
         };
@@ -79,31 +88,42 @@ class DatesWorker
     {
         $periods = [];
 
+        $startOfWeek = function(Carbon $carbonDate){
+            $date = new Carbon($carbonDate);
+            return $date->startOfWeek();
+        };
+
+        $endOfWeek = function(Carbon $carbonDate){
+            $date = new Carbon($carbonDate);
+            return $date->endOfWeek();
+        };
+
+        $startOfNextWeek = function (Carbon $carbonDate) {
+            $date = new Carbon($carbonDate);
+            return $date->addWeek()->startOfWeek();
+        };
+
         $from = Carbon::createFromFormat('Y-m-d H:i', $from);
         $to = Carbon::createFromFormat('Y-m-d H:i', $to);
 
         // If choose just one week
-        if ($from->endOfWeek()->toDateString() == $to->endOfWeek()->toDateString())
+        if ($startOfWeek($from)->toDateString() == $startOfWeek($to)->toDateString())
         {
             return [[$from->toDateTimeString(), $to->toDateTimeString()]];
         }
 
         // Add first week period
-        $periods[] = [$from->toDateTimeString(), $from->endOfWeek()->toDateTimeString()];
+        $periods[] = [$from->toDateTimeString(), $endOfWeek($from)->toDateTimeString()];
 
-        $startOfNextWeek = function ($someWeek) {
-            return $someWeek->addWeek()->startOfWeek();
-        };
-
-        $iter = function ($acc, $startOfSomeWeek) use (&$iter, &$to, &$startOfNextWeek) {
+        $iter = function ($acc, $startOfSomeWeek) use (&$iter, &$to, &$startOfNextWeek, &$endOfWeek) {
             // If we are in last day
-            if ( $startOfSomeWeek->endOfWeek()->toDateString() == $to->endOfWeek()->toDateString())
+            if ( $endOfWeek($startOfSomeWeek)->toDateString() == $endOfWeek($to)->toDateString())
             {
                 $acc[] = [$startOfSomeWeek->toDateTimeString(), $to->toDateTimeString()];
                 return $acc;
             }
 
-            $acc[] = [$startOfSomeWeek->toDateTimeString(), $startOfSomeWeek->endOfWeek()->toDateTimeString()];
+            $acc[] = [$startOfSomeWeek->toDateTimeString(), $endOfWeek($startOfSomeWeek)->toDateTimeString()];
 
             return $iter($acc, $startOfNextWeek($startOfSomeWeek));
         };

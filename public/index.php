@@ -3,4 +3,4 @@
 
 require __DIR__ . '/../src/DatesWorker.php';
 
-DatesWorker::parcelDays();
+DatesWorker::parcel('', '', 'days');
