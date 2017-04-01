@@ -7,7 +7,7 @@ class Db
     /**
     *@return \Slim\PDO\Database
     */
-    private function getPDO()
+    static private function getPDO()
     {
         $settings = require __DIR__ . '/../src/settings.php';
         $dbSettings = $settings['settings']['db'];
