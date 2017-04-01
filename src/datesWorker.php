@@ -183,4 +183,53 @@ class DatesWorker
         // format: "2010-10-22 00:00:00"
         return $iter($periods, $startOfNextMonth($from));
     }
+
+    private static function parcelYears(string $from, string $to)
+    {
+        $periods = [];
+
+        $startOfYear = function(Carbon $carbonDate){
+            $date = new Carbon($carbonDate);
+            return $date->startOfYear();
+        };
+
+        $endOfYear = function(Carbon $carbonDate){
+            $date = new Carbon($carbonDate);
+            return $date->endOfYear();
+        };
+
+        $startOfNextYear = function (Carbon $carbonDate) {
+            $date = new Carbon($carbonDate);
+            return $date->addYear()->startOfYear();
+        };
+
+        $from = Carbon::createFromFormat('Y-m-d H:i', $from);
+        $to = Carbon::createFromFormat('Y-m-d H:i', $to);
+
+        // If choose just one Year
+        if ($startOfYear($from)->toDateString() == $startOfYear($to)->toDateString())
+        {
+            return [[$from->toDateTimeString(), $to->toDateTimeString()]];
+        }
+
+        // Add first Year period
+        $periods[] = [$from->toDateTimeString(), $endOfYear($from)->toDateTimeString()];
+
+        $iter = function ($acc, $startOfSomeYear) use (&$iter, &$to, &$startOfNextYear, &$endOfYear) {
+            // If we are in last Year of period
+            if ( $endOfYear($startOfSomeYear)->toDateString() == $endOfYear($to)->toDateString())
+            {
+                $acc[] = [$startOfSomeYear->toDateTimeString(), $to->toDateTimeString()];
+                return $acc;
+            }
+
+            $acc[] = [$startOfSomeYear->toDateTimeString(), $endOfYear($startOfSomeYear)->toDateTimeString()];
+
+            return $iter($acc, $startOfNextYear($startOfSomeYear));
+        };
+
+        // return [ [start, end], [start, end], [start, end], ]
+        // format: "2010-10-22 00:00:00"
+        return $iter($periods, $startOfNextYear($from));
+    }
 }
