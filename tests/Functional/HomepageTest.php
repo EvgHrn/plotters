@@ -40,7 +40,7 @@ class DatesWorkerTest extends \PHPUnit_Framework_TestCase
     public function testParcelMonths()
     {
         $result = DatesWorker::parcel('2017-01-01 15:15', '2017-04-10 22:22', 'month');
-        
+
         $this->assertEquals([
             ['2017-01-01 15:15:00', '2017-01-31 23:59:59'],
             ['2017-02-01 00:00:00', '2017-02-28 23:59:59'],
@@ -50,6 +50,23 @@ class DatesWorkerTest extends \PHPUnit_Framework_TestCase
         $result = DatesWorker::parcel('2017-01-01 15:15', '2017-01-28 22:22', 'month');
         $this->assertEquals([
             ['2017-01-01 15:15:00', '2017-01-28 22:22:00']
+        ], $result);
+    }
+
+    public function testParcelYears()
+    {
+        $result = DatesWorker::parcel('2014-01-01 15:15', '2017-04-10 22:22', 'year');
+        
+        $this->assertEquals([
+            ['2014-01-01 15:15:00', '2014-12-31 23:59:59'],
+            ['2015-01-01 00:00:00', '2015-12-31 23:59:59'],
+            ['2016-01-01 00:00:00', '2016-12-31 23:59:59'],
+            ['2017-01-01 00:00:00', '2017-04-10 22:22:00']
+        ], $result);
+
+        $result = DatesWorker::parcel('2017-01-01 15:15', '2017-12-28 22:22', 'year');
+        $this->assertEquals([
+            ['2017-01-01 15:15:00', '2017-12-28 22:22:00']
         ], $result);
     }
 
