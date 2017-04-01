@@ -62,7 +62,7 @@ class Db
                                 BETWEEN STR_TO_DATE(:ff, "%Y-%m-%d %H:%i:%s")
                                 AND STR_TO_DATE(:tt, "%Y-%m-%d %H:%i:%s");');
         
-        $periodsData = array_map(function($item){
+        $periodsData = array_map(function($item) use (&$stmt){
             $start = $item[0];
             $end = $item[1];
             $stmt->execute(['ff' => $start, 'tt' => $end]);

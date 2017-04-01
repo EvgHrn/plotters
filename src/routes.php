@@ -25,17 +25,11 @@ $app->get('/getdata', function ($request, $response, $args) {
 
     $data = Db::getData($from, $to, $period);
 
-    var_dump($data);
-    die();
-
     return $this->view->render($response, 'index.twig');
 });
 
 $app->get('/postdata', function ($request, $response, $args) {
 
-    // var_dump($request->getQueryParams());
-    // die();
-    
     $data = $request->getQueryParams();
 
     Db::saveData($data);

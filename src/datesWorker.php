@@ -10,8 +10,8 @@ use Carbon\Carbon;
 class DatesWorker
 {
     /**
-    *@param string $from with fromat 'Y-m-d H:i'
-    *@param string $to with fromat 'Y-m-d H:i'
+    *@param string $from with fromat 'Y-m-d H:i:s'
+    *@param string $to with fromat 'Y-m-d H:i:s'
     *@param string $period - 'day', 'week', 'month' or 'year'
     *@return array with format [ [start, end], [start, end], [start, end], ]. Each 'start' and 'end' has format: "2010-10-22 00:00:00"
     */
@@ -42,16 +42,16 @@ class DatesWorker
     }
 
     /**
-    *@param string $from with fromat 'Y-m-d H:i'
-    *@param string $to with fromat 'Y-m-d H:i'
+    *@param string $start with fromat 'Y-m-d H:i:s'
+    *@param string $end with fromat 'Y-m-d H:i:s'
     *@return array with format [ [start, end], [start, end], [start, end], ]. Each 'start' and 'end' has format: "2010-10-22 00:00:00"
     */
-    private static function parcelDays(string $from, string $to)
+    private static function parcelDays(string $start, string $end)
     {
         $periods = [];
 
-        $from = Carbon::createFromFormat('Y-m-d H:i', $from);
-        $to = Carbon::createFromFormat('Y-m-d H:i', $to);
+        $from = Carbon::createFromFormat('Y-m-d H:i:s', $start);
+        $to = Carbon::createFromFormat('Y-m-d H:i:s', $end);
 
         // If choose just one day
         if ($from->toDateString() == $to->toDateString())
@@ -89,8 +89,8 @@ class DatesWorker
     }
 
     /**
-    *@param string $from with fromat 'Y-m-d H:i'
-    *@param string $to with fromat 'Y-m-d H:i'
+    *@param string $from with fromat 'Y-m-d H:i:s'
+    *@param string $to with fromat 'Y-m-d H:i:s'
     *@return array with format [ [start, end], [start, end], [start, end], ]. Each 'start' and 'end' has format: "2010-10-22 00:00:00"
     */
     private static function parcelWeeks(string $from, string $to)
@@ -112,8 +112,8 @@ class DatesWorker
             return $date->addWeek()->startOfWeek();
         };
 
-        $from = Carbon::createFromFormat('Y-m-d H:i', $from);
-        $to = Carbon::createFromFormat('Y-m-d H:i', $to);
+        $from = Carbon::createFromFormat('Y-m-d H:i:s', $from);
+        $to = Carbon::createFromFormat('Y-m-d H:i:s', $to);
 
         // If choose just one week
         if ($startOfWeek($from)->toDateString() == $startOfWeek($to)->toDateString())
@@ -143,8 +143,8 @@ class DatesWorker
     }
 
     /**
-    *@param string $from with fromat 'Y-m-d H:i'
-    *@param string $to with fromat 'Y-m-d H:i'
+    *@param string $from with fromat 'Y-m-d H:i:s'
+    *@param string $to with fromat 'Y-m-d H:i:s'
     *@return array with format [ [start, end], [start, end], [start, end], ]. Each 'start' and 'end' has format: "2010-10-22 00:00:00"
     */
     private static function parcelMonths(string $from, string $to)
@@ -166,8 +166,8 @@ class DatesWorker
             return $date->addMonth()->startOfMonth();
         };
 
-        $from = Carbon::createFromFormat('Y-m-d H:i', $from);
-        $to = Carbon::createFromFormat('Y-m-d H:i', $to);
+        $from = Carbon::createFromFormat('Y-m-d H:i:s', $from);
+        $to = Carbon::createFromFormat('Y-m-d H:i:s', $to);
 
         // If choose just one month
         if ($startOfMonth($from)->toDateString() == $startOfMonth($to)->toDateString())
@@ -197,8 +197,8 @@ class DatesWorker
     }
 
     /**
-    *@param string $from with fromat 'Y-m-d H:i'
-    *@param string $to with fromat 'Y-m-d H:i'
+    *@param string $from with fromat 'Y-m-d H:i:s'
+    *@param string $to with fromat 'Y-m-d H:i:s'
     *@return array with format [ [start, end], [start, end], [start, end], ]. Each 'start' and 'end' has format: "2010-10-22 00:00:00"
     */
     private static function parcelYears(string $from, string $to)
@@ -220,8 +220,8 @@ class DatesWorker
             return $date->addYear()->startOfYear();
         };
 
-        $from = Carbon::createFromFormat('Y-m-d H:i', $from);
-        $to = Carbon::createFromFormat('Y-m-d H:i', $to);
+        $from = Carbon::createFromFormat('Y-m-d H:i:s', $from);
+        $to = Carbon::createFromFormat('Y-m-d H:i:s', $to);
 
         // If choose just one Year
         if ($startOfYear($from)->toDateString() == $startOfYear($to)->toDateString())
