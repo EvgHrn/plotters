@@ -132,4 +132,53 @@ class DatesWorker
         // format: "2010-10-22 00:00:00"
         return $iter($periods, $startOfNextWeek($from));
     }
+
+    private static function parcelMonths($from, $to)
+    {
+        $periods = [];
+
+        $startOfMonth = function(Carbon $carbonDate){
+            $date = new Carbon($carbonDate);
+            return $date->startOfMonth();
+        };
+
+        $endOfMonth = function(Carbon $carbonDate){
+            $date = new Carbon($carbonDate);
+            return $date->endOfMonth();
+        };
+
+        $startOfNextMonth = function (Carbon $carbonDate) {
+            $date = new Carbon($carbonDate);
+            return $date->addMonth()->startOfMonth();
+        };
+
+        $from = Carbon::createFromFormat('Y-m-d H:i', $from);
+        $to = Carbon::createFromFormat('Y-m-d H:i', $to);
+
+        // If choose just one week
+        if ($startOfMonth($from)->toDateString() == $startOfMonth($to)->toDateString())
+        {
+            return [[$from->toDateTimeString(), $to->toDateTimeString()]];
+        }
+
+        // Add first week period
+        $periods[] = [$from->toDateTimeString(), $endOfMonth($from)->toDateTimeString()];
+
+        $iter = function ($acc, $startOfSomeMonth) use (&$iter, &$to, &$startOfNextMonth, &$endOfMonth) {
+            // If we are in last day
+            if ( $endOfMonth($startOfSomeMonth)->toDateString() == $endOfMonth($to)->toDateString())
+            {
+                $acc[] = [$startOfSomeMonth->toDateTimeString(), $to->toDateTimeString()];
+                return $acc;
+            }
+
+            $acc[] = [$startOfSomeMonth->toDateTimeString(), $endOfMonth($startOfSomeMonth)->toDateTimeString()];
+
+            return $iter($acc, $startOfNextMonth($startOfSomeMonth));
+        };
+
+        // return [ [start, end], [start, end], [start, end], ]
+        // format: "2010-10-22 00:00:00"
+        return $iter($periods, $startOfNextMonth($from));
+    }
 }
