@@ -84,7 +84,7 @@ class DatesWorker
 
     // return [ [start, end], [start, end], [start, end], ]
     // format: "2010-10-22 00:00:00"
-    private static function parcelWeeks($from, $to)
+    private static function parcelWeeks(string $from, string $to)
     {
         $periods = [];
 
@@ -133,7 +133,9 @@ class DatesWorker
         return $iter($periods, $startOfNextWeek($from));
     }
 
-    private static function parcelMonths($from, $to)
+    // return [ [start, end], [start, end], [start, end], ]
+    // format: "2010-10-22 00:00:00"
+    private static function parcelMonths(string $from, string $to)
     {
         $periods = [];
 
@@ -155,17 +157,17 @@ class DatesWorker
         $from = Carbon::createFromFormat('Y-m-d H:i', $from);
         $to = Carbon::createFromFormat('Y-m-d H:i', $to);
 
-        // If choose just one week
+        // If choose just one month
         if ($startOfMonth($from)->toDateString() == $startOfMonth($to)->toDateString())
         {
             return [[$from->toDateTimeString(), $to->toDateTimeString()]];
         }
 
-        // Add first week period
+        // Add first month period
         $periods[] = [$from->toDateTimeString(), $endOfMonth($from)->toDateTimeString()];
 
         $iter = function ($acc, $startOfSomeMonth) use (&$iter, &$to, &$startOfNextMonth, &$endOfMonth) {
-            // If we are in last day
+            // If we are in last month of period
             if ( $endOfMonth($startOfSomeMonth)->toDateString() == $endOfMonth($to)->toDateString())
             {
                 $acc[] = [$startOfSomeMonth->toDateTimeString(), $to->toDateTimeString()];
