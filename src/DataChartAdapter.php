@@ -19,6 +19,7 @@ class DataChartAdapter
             fwrite($file, $adaptedData);
             fclose($file);
         } catch (Exception $e) {
+            $this->logger->info($e->getMessage());
             echo $e->getMessage();
         }
     }
