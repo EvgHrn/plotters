@@ -18,7 +18,7 @@ class DataChartAdapter
             $file = fopen("data.json", "w");
             fwrite($file, $adaptedData);
             fclose($file);
-        } catch {
+        } catch (Exception $e) {
             echo $e->getMessage();
         }
     }
