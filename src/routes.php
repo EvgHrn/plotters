@@ -75,10 +75,10 @@ $app->get('/getdata', function ($request, $response, $args) {
 $app->get('/postdata', function ($request, $response, $args) {
 
     ob_start();
-    var_dump($_SERVER['QUERY_STRING']);
+    var_dump($request->getQueryParams());
     $content = ob_get_contents();
     ob_end_clean();
-    $this->logger->info("Slim '/postdata' route QUERY_STRING: " . $content);
+    $this->logger->info("Slim '/postdata' route QueryParams: " . $content);
 
     $data = $request->getQueryParams();
 
