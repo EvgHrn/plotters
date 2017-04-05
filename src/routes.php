@@ -74,6 +74,12 @@ $app->get('/getdata', function ($request, $response, $args) {
 
 $app->get('/postdata', function ($request, $response, $args) {
 
+    ob_start();
+    var_dump($_SERVER['QUERY_STRING']);
+    $content = ob_get_contents();
+    ob_end_clean();
+    $this->logger->info("Slim '/postdata' route QUERY_STRING: " . $content);
+
     $data = $request->getQueryParams();
 
     Db::saveData($data);
