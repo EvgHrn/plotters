@@ -14,9 +14,13 @@ class DataChartAdapter
     static public function adaptForChart($data)
     {
         $adaptedData = static::adapt($data);
-        $file = fopen("data.json", "w");
-        fwrite($file, $adaptedData);
-        fclose($file);
+        try {
+            $file = fopen("data.json", "w");
+            fwrite($file, $adaptedData);
+            fclose($file);
+        } catch {
+            echo $e->getMessage();
+        }
     }
 
     static private function adapt($rowData)
