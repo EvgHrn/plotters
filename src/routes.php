@@ -91,7 +91,7 @@ $app->get('/logs', function ($request, $response, $args) {
     $lines = [];
     $lines = file('../logs/app.log');
 
-    var_dump($lines);
+    //var_dump($lines);
 
-    //return $this->view->render($response, 'logs.twig', ['lines' => $lines]);
+    return $this->view->render($response, 'logs.twig', ['lines' => $lines]);
 });
