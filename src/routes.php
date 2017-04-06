@@ -85,3 +85,11 @@ $app->get('/postdata', function ($request, $response, $args) {
     Db::saveData($data);
 
 });
+
+$app->get('/logs', function ($request, $response, $args) {
+
+    $lines = [];
+    $lines = file('/../logs/app.log');
+
+    return $this->view->render($response, 'logs.twig', ['lines' => $lines]);
+});
