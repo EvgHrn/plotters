@@ -89,7 +89,7 @@ $app->get('/postdata', function ($request, $response, $args) {
 $app->get('/logs', function ($request, $response, $args) {
 
     $lines = [];
-    $lines = file('/../logs/app.log');
+    $lines = file('../logs/app.log');
 
     var_dump($lines);
 
