@@ -136,16 +136,13 @@ bool sendDB(int _id, byte _plotter, String _startTime, String _stopTime, int _pa
     Serial.println(F("connectedToServer"));
     digitalWrite(errTCPLedPin, LOW);
     Serial.println(post);
+    
     // Make a HTTP request:
+    
     client.println(post);
-    client.println(F("77.220.213.69"));
-    client.println(F("Cache-Control: no-cache"));
-    client.println(F("Content-Type: application/x-www-form-urlencoded"));
-    client.print(F("Content-Length: "));
-    client.println(post.length());
+    client.println(F("Host: 77.220.213.69"));
+    client.println(F("Connection: close"));
     client.println();
-    client.println(post);
-    client.stop();
     attachInts();
     return true;
   } else {
@@ -224,7 +221,6 @@ String getTime() {
 
   String hourStr;
   int hour = now.hour();
-  Serial.println(hour);
   if (hour < 10){
     hourStr = "0" + String(hour);
   } else {
@@ -247,7 +243,7 @@ String getTime() {
     secondStr = String(second);
   }
 
-  return String(String(now.year()) + "-" + monthStr + "-" + dayStr + " " + hourStr + ":" + minuteStr + ":" + secondStr );
+  return String(String(now.year()) + "-" + monthStr + "-" + dayStr + "_" + hourStr + ":" + minuteStr + ":" + secondStr );
 }
 
 void intHall() {
