@@ -5,7 +5,7 @@
 #include "Arduino.h"
 #include <ESP8266WiFi.h>
 
-#define plotterNumber  1
+#define plotterNumber  5
 #define maxPassDelay  8000
 #define passesPerMeter 80
 #define passLedPin 4
@@ -24,10 +24,9 @@ String stopTime = "";
 unsigned long lastHallWorked = 0;
 volatile boolean isHall = false;
 
-const char* ssid     = "PC";
+const char* ssid     = "PCPC";
 const char* password = "12345678";
 const char* host = "77.220.213.69";
-WiFiClient client;
 
 void setup() {
 
@@ -48,6 +47,25 @@ void setup() {
   pinMode(intPin, INPUT_PULLUP);
 
   Serial.println(F("GPIOset"));
+
+  Serial.println();
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  WiFi.mode(WIFI_STA);
+  
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected");  
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
 
   attachInts();
   
@@ -72,12 +90,43 @@ void loop() {
   
 }
 
+void(* resetFunc) (void) = 0; // Reset MC function
+
 bool sendDB(int _id, byte _plotter, String _startTime, String _stopTime, int _passes, float _meters) {
 
   detachInts();
 
-  if (!wifiStart()){
-    digitalWrite(errTCPLedPin, HIGH);
+//  if (!wifiStart()){
+//    digitalWrite(errTCPLedPin, HIGH);
+//    return false;
+//  }
+
+//  Serial.println();
+//  Serial.println();
+//  Serial.print("Connecting to ");
+//  Serial.println(ssid);
+//
+//  WiFi.mode(WIFI_STA);
+//  
+//  WiFi.begin(ssid, password);
+//
+//  while (WiFi.status() != WL_CONNECTED) {
+//    delay(1000);
+//    Serial.print(".");
+//  }
+//
+//  Serial.println("");
+//  Serial.println("WiFi connected");  
+//  Serial.println("IP address: ");
+//  Serial.println(WiFi.localIP());
+  
+  const int httpPort = 80;
+
+  WiFiClient client;
+
+  
+  if (!client.connect(host, httpPort)) {
+    Serial.println("connection failed");
     return false;
   }
   
@@ -103,6 +152,9 @@ bool sendDB(int _id, byte _plotter, String _startTime, String _stopTime, int _pa
     }
   }
 
+  Serial.println();
+  Serial.println("closing connection");
+  
   attachInts();
   return true;
 }
@@ -206,37 +258,5 @@ void attachInts() {
 void detachInts() {
   detachInterrupt(intPin);
 }
-
-// start the Ethernet connection:
-bool wifiStart () {
-  Serial.println();
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-
-  WiFi.mode(WIFI_STA);
-  
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  Serial.println("");
-  Serial.println("WiFi connected");  
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
-  
-  const int httpPort = 80;
-  
-  if (!client.connect(host, httpPort)) {
-    Serial.println("connection failed");
-    return false;
-  }
-
-  return true;
-}
-
 
 
