@@ -27,18 +27,18 @@ volatile boolean isHall = false;
 
 const char* ssid     = "PCPC";
 const char* password = "12345678";
-const char* host = "77.220.213.69";
+const char* host = "192.168.0.113";
 
 const int timeZone = 4;
 unsigned int localPort = 2390; 
 
-WiFiUDP Udp;
-
 // NTP Servers:
-IPAddress timeServer(132, 163, 4, 101); // time-a.timefreq.bldrdoc.gov
+IPAddress timeServer(129, 6, 15, 28); // time-a.timefreq.bldrdoc.gov
 
 const int NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
 byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
+
+WiFiUDP Udp;
 
 void setup() {
 
