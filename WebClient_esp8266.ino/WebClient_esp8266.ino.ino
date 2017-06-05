@@ -1,9 +1,10 @@
 
 #include <Wire.h>
-//#include "RTClib.h"
 #include <SPI.h>
 #include "Arduino.h"
 #include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
+#include <TimeLib.h>
 
 #define plotterNumber  5
 #define maxPassDelay  8000
@@ -11,9 +12,7 @@
 #define passLedPin 4
 #define errTCPLedPin 3
 #define errRTCLedPin 5
-#define intPin 4
-
-// RTC_DS1307 rtc;
+#define intPin 12
 
 boolean inTimer = false;
 unsigned int passes = 0;
@@ -27,6 +26,17 @@ volatile boolean isHall = false;
 const char* ssid     = "PCPC";
 const char* password = "12345678";
 const char* host = "77.220.213.69";
+
+const int timeZone = 4;
+unsigned int localPort = 2390; 
+
+WiFiUDP Udp;
+
+// NTP Servers:
+IPAddress timeServer(132, 163, 4, 101); // time-a.timefreq.bldrdoc.gov
+
+const int NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
+byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
 
 void setup() {
 
@@ -67,6 +77,13 @@ void setup() {
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 
+  Serial.println("Starting UDP");
+  Udp.begin(localPort);
+  Serial.print("Local port: ");
+  Serial.println(Udp.localPort());
+  Serial.println("waiting for sync");
+  setSyncProvider(getNtpTime);
+
   attachInts();
   
 
@@ -95,36 +112,11 @@ void(* resetFunc) (void) = 0; // Reset MC function
 bool sendDB(int _id, byte _plotter, String _startTime, String _stopTime, int _passes, float _meters) {
 
   detachInts();
-
-//  if (!wifiStart()){
-//    digitalWrite(errTCPLedPin, HIGH);
-//    return false;
-//  }
-
-//  Serial.println();
-//  Serial.println();
-//  Serial.print("Connecting to ");
-//  Serial.println(ssid);
-//
-//  WiFi.mode(WIFI_STA);
-//  
-//  WiFi.begin(ssid, password);
-//
-//  while (WiFi.status() != WL_CONNECTED) {
-//    delay(1000);
-//    Serial.print(".");
-//  }
-//
-//  Serial.println("");
-//  Serial.println("WiFi connected");  
-//  Serial.println("IP address: ");
-//  Serial.println(WiFi.localIP());
   
   const int httpPort = 80;
 
   WiFiClient client;
 
-  
   if (!client.connect(host, httpPort)) {
     Serial.println("connection failed");
     return false;
@@ -132,7 +124,7 @@ bool sendDB(int _id, byte _plotter, String _startTime, String _stopTime, int _pa
   
   digitalWrite(errTCPLedPin, LOW);
 
-  String url = String(String("/postdata?") + String("session_id=") + _id + String("&plotter=") + _plotter + String("&start_datetime=2017-02-12_12:12:00") + _startTime + String("&stop_datetime=2017-02-12_12:12:00") + _stopTime + String("&passes=") + _passes + String("&meters=") + _meters);
+  String url = String(String("/postdata?") + String("session_id=") + _id + String("&plotter=") + _plotter + String("&start_datetime=") + _startTime + String("&stop_datetime=") + _stopTime + String("&passes=") + _passes + String("&meters=") + _meters);
 
   String request = String("GET " + url + " HTTP/1.1\r\n" +
                "Host: " + host + "\r\n" + 
@@ -201,51 +193,98 @@ void stopPrintSession(int pltoStop) {
 }
 
 String getTime() {
-//  DateTime now = rtc.now();
-//  
-//  String monthStr;
-//  int month = now.month();
-//  if (month < 10){
-//    monthStr = "0" + String(month);
-//  } else {
-//    monthStr = String(month);
-//  }
-//  
-//  String dayStr;
-//  int day = now.day();
-//  if (day < 10){
-//    dayStr = "0" + String(day);
-//  } else {
-//    dayStr = String(day);
-//  }
-//
-//  String hourStr;
-//  int hour = now.hour();
-//  if (hour < 10){
-//    hourStr = "0" + String(hour);
-//  } else {
-//    hourStr = String(hour);
-//  }
-//
-//  String minuteStr;
-//  int minute = now.minute();
-//  if (minute < 10){
-//    minuteStr = "0" + String(minute);
-//  } else {
-//    minuteStr = String(minute);
-//  }
-//  
-//  String secondStr;
-//  int second = now.second();
-//  if (second < 10){
-//    secondStr = "0" + String(second);
-//  } else {
-//    secondStr = String(second);
-//  }
-//
-//  return String(String(now.year()) + "-" + monthStr + "-" + dayStr + "_" + hourStr + ":" + minuteStr + ":" + secondStr );
-  return String("");
+  
+  String monthStr;
+  int monthN = month();
+  if (monthN < 10){
+    monthStr = "0" + String(monthN);
+  } else {
+    monthStr = String(monthN);
+  }
+  
+  String dayStr;
+  int dayN = day();
+  if (dayN < 10){
+    dayStr = "0" + String(dayN);
+  } else {
+    dayStr = String(dayN);
+  }
+
+  String hourStr;
+  int hourN = hour();
+  if (hourN < 10){
+    hourStr = "0" + String(hourN);
+  } else {
+    hourStr = String(hourN);
+  }
+
+  String minuteStr;
+  int minuteN = minute();
+  if (minuteN < 10){
+    minuteStr = "0" + String(minuteN);
+  } else {
+    minuteStr = String(minuteN);
+  }
+  
+  String secondStr;
+  int secondN = second();
+  if (secondN < 10){
+    secondStr = "0" + String(secondN);
+  } else {
+    secondStr = String(secondN);
+  }
+
+  return String(String(year()) + "-" + monthStr + "-" + dayStr + "_" + hourStr + ":" + minuteStr + ":" + secondStr );
+  
 }
+
+time_t getNtpTime()
+{
+  while (Udp.parsePacket() > 0) ; // discard any previously received packets
+  Serial.println("Transmit NTP Request");
+  sendNTPpacket(timeServer);
+  uint32_t beginWait = millis();
+  while (millis() - beginWait < 1500) {
+    int size = Udp.parsePacket();
+    if (size >= NTP_PACKET_SIZE) {
+      Serial.println("Receive NTP Response");
+      Udp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
+      unsigned long secsSince1900;
+      // convert four bytes starting at location 40 to a long integer
+      secsSince1900 =  (unsigned long)packetBuffer[40] << 24;
+      secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
+      secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
+      secsSince1900 |= (unsigned long)packetBuffer[43];
+      return secsSince1900 - 2208988800UL + timeZone * SECS_PER_HOUR;
+    }
+  }
+  Serial.println("No NTP Response :-(");
+  return 0; // return 0 if unable to get the time
+}
+
+// send an NTP request to the time server at the given address
+void sendNTPpacket(IPAddress &address)
+{
+  // set all bytes in the buffer to 0
+  memset(packetBuffer, 0, NTP_PACKET_SIZE);
+  // Initialize values needed to form NTP request
+  // (see URL above for details on the packets)
+  packetBuffer[0] = 0b11100011;   // LI, Version, Mode
+  packetBuffer[1] = 0;     // Stratum, or type of clock
+  packetBuffer[2] = 6;     // Polling Interval
+  packetBuffer[3] = 0xEC;  // Peer Clock Precision
+  // 8 bytes of zero for Root Delay & Root Dispersion
+  packetBuffer[12]  = 49;
+  packetBuffer[13]  = 0x4E;
+  packetBuffer[14]  = 49;
+  packetBuffer[15]  = 52;
+  // all NTP fields have been given values, now
+  // you can send a packet requesting a timestamp:                 
+  Udp.beginPacket(address, 123); //NTP requests are to port 123
+  Udp.write(packetBuffer, NTP_PACKET_SIZE);
+  Udp.endPacket();
+}
+
 
 void intHall() {
   isHall = true;
