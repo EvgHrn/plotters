@@ -10,7 +10,7 @@
 #define maxPassDelay  8000
 #define passesPerMeter 80
 #define passLedPin 4        // D2 pin
-#define errWiFiLedPin 3     // D9 pin
+#define errWiFiLedPin 2     // D4 pin
 #define errNTPLedPin 5      // D1 pin
 #define intPin 12           // D6 pin
 
