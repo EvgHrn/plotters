@@ -9,10 +9,10 @@
 #define plotterNumber  5
 #define maxPassDelay  8000
 #define passesPerMeter 80
-#define passLedPin 4        // D2 pin
+#define passLedPin 0        // D3 pin
 #define errWiFiLedPin 2     // D4 pin
 #define errNTPLedPin 5      // D1 pin
-#define intPin 12           // D6 pin
+#define intPin 4           // D2 pin
 
 boolean inTimer = false;
 unsigned int passes = 0;
@@ -33,7 +33,13 @@ const int timeZone = 4;
 unsigned int localPort = 2390; 
 
 // NTP Servers:
-IPAddress timeServer(129, 6, 15, 28); // time-a.timefreq.bldrdoc.gov
+IPAddress timeServer1(129, 6, 15, 28);
+IPAddress timeServer2(98, 175, 203, 200);
+IPAddress timeServer3(66, 199, 22, 67);
+IPAddress timeServer4(24, 56, 178, 140);
+IPAddress timeServer5(132, 163, 4, 104);
+
+IPAddress servers[] = {timeServer2, timeServer3, timeServer4, timeServer5, timeServer1};
 
 const int NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
 byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
@@ -93,6 +99,8 @@ void setup() {
 
     attachInts();
 
+    Serial.println(getTime());
+    
     Serial.println(F("SetupF"));
     delay(1000);
 
@@ -250,30 +258,41 @@ String getTime() {
 
 }
 
+time_t tryGetTime(IPAddress address){
+  while (Udp.parsePacket() > 0) ; // discard any previously received packets
+  Serial.print("Transmit NTP Request from ");
+  Serial.println(address);
+  sendNTPpacket(address);
+  uint32_t beginWait = millis();
+  while (millis() - beginWait < 3000) {
+    int size = Udp.parsePacket();
+    if (size >= NTP_PACKET_SIZE) {
+        Serial.println("Receive NTP Response");
+        Udp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
+        unsigned long secsSince1900;
+        // convert four bytes starting at location 40 to a long integer
+        secsSince1900 =  (unsigned long)packetBuffer[40] << 24;
+        secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
+        secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
+        secsSince1900 |= (unsigned long)packetBuffer[43];
+        ntp_error_off();
+        return secsSince1900 - 2208988800UL + timeZone * SECS_PER_HOUR;
+    }
+  }
+  Serial.println("No NTP Response :-(");
+  return 0;
+}
+
 time_t getNtpTime()
 {
-    while (Udp.parsePacket() > 0) ; // discard any previously received packets
-    Serial.println("Transmit NTP Request");
-    sendNTPpacket(timeServer);
-    uint32_t beginWait = millis();
-    while (millis() - beginWait < 1500) {
-        int size = Udp.parsePacket();
-        if (size >= NTP_PACKET_SIZE) {
-            Serial.println("Receive NTP Response");
-            Udp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
-            unsigned long secsSince1900;
-            // convert four bytes starting at location 40 to a long integer
-            secsSince1900 =  (unsigned long)packetBuffer[40] << 24;
-            secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
-            secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
-            secsSince1900 |= (unsigned long)packetBuffer[43];
-            ntp_error_off();
-            return secsSince1900 - 2208988800UL + timeZone * SECS_PER_HOUR;
-        }
+  for (int i = 0; i <= (sizeof(servers) / sizeof(servers[0])); i++){
+    time_t timeTemp = tryGetTime(servers[i]);
+    if (timeTemp){
+      return timeTemp;
     }
-    Serial.println("No NTP Response :-(");
-    ntp_error_on();
-    return 0; // return 0 if unable to get the time
+  }
+  ntp_error_on();
+  return 0; // return 0 if unable to get the time
 }
 
 // send an NTP request to the time server at the given address
