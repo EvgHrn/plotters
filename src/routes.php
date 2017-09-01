@@ -82,7 +82,7 @@ $app->get('/postdata', function ($request, $response, $args) {
 
     $data = $request->getQueryParams();
 
-    $data['meters'] = 0;
+    $data['speed'] = 0;
 
     Db::saveData($data);
 

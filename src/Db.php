@@ -32,7 +32,7 @@ class Db
         'stop_datetime', 'passes', 'meters', 'speed'))
         ->into('printsessions')
         ->values(array($data['session_id'], $data['plotter'], $data['start_datetime'],
-        $data['stop_datetime'], $data['passes'], $data['meters'], $data['meters']));
+        $data['stop_datetime'], $data['passes'], $data['meters'], $data['speed']));
         
         $insertId = $insertStatement->execute(false);
     }
