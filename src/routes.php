@@ -82,6 +82,8 @@ $app->get('/postdata', function ($request, $response, $args) {
 
     $data = $request->getQueryParams();
 
+    $data['meters'] = 0;
+
     Db::saveData($data);
 
 });
