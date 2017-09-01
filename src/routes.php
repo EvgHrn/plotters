@@ -84,7 +84,7 @@ $app->get('/postdata', function ($request, $response, $args) {
 
     $seconds = DatesWorker::secondsDiff($data['start_datetime'], $data['stop_datetime']);
 
-    $speed = (float) ($data['meters'] / $seconds / 3600);
+    $speed = (float) ( (float)$data['meters'] / ($seconds / 3600) );
     $speedRounded = round($speed, 2);
 
     var_dump($seconds);
