@@ -87,11 +87,6 @@ $app->get('/postdata', function ($request, $response, $args) {
     $speed = (float) ( (float)$data['meters'] / ($seconds / 3600) );
     $speedRounded = round($speed, 2);
 
-    var_dump($seconds);
-    var_dump($data['meters']);
-    var_dump($speed);
-    var_dump($speedRounded);
-
     $data['speed'] = $speedRounded;
 
     Db::saveData($data);
