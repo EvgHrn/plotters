@@ -249,4 +249,12 @@ class DatesWorker
         // format: "2010-10-22 00:00:00"
         return $iter($periods, $startOfNextYear($from));
     }
+
+    public static function secondsDiff(string $from, string $to)
+    {
+        $from = Carbon::createFromFormat('Y-m-d H:i:s', $from);
+        $to = Carbon::createFromFormat('Y-m-d H:i:s', $to);
+
+        return $from->diffInSeconds($to);
+    }
 }

@@ -82,7 +82,12 @@ $app->get('/postdata', function ($request, $response, $args) {
 
     $data = $request->getQueryParams();
 
-    $data['speed'] = 0;
+    $seconds = DatesWorker::secondsDiff($data['start_datetime'], $data['stop_datetime']);
+
+    $speed = (float) ($data['meters'] / $seconds / 3600);
+    $speedRounded = round($speed, 2);
+
+    $data['speed'] = $speedRounded;
 
     Db::saveData($data);
 
