@@ -29,10 +29,10 @@ class Db
     {
         $pdo = static::getPDO();
         $insertStatement = $pdo->insert(array('session_id', 'plotter', 'start_datetime',
-        'stop_datetime', 'passes', 'meters'))
+        'stop_datetime', 'passes', 'meters', 'speed'))
         ->into('printsessions')
         ->values(array($data['session_id'], $data['plotter'], $data['start_datetime'],
-        $data['stop_datetime'], $data['passes'], $data['meters']));
+        $data['stop_datetime'], $data['passes'], $data['meters'], 0));
         
         $insertId = $insertStatement->execute(false);
     }
