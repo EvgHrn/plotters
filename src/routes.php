@@ -100,3 +100,11 @@ $app->get('/logs', function ($request, $response, $args) {
 
     return $this->view->render($response, 'logs.twig', ['lines' => $lines]);
 });
+
+$app->get('/print_logs', function ($request, $response, $args) {
+    
+    $params = [];
+
+    return $this->view->render($response, 'print_logs.twig', ['params' => $params]);
+
+});
